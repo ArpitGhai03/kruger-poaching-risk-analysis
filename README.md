@@ -116,20 +116,7 @@ Interactive dashboard visualizing:
 ## 🤖 Machine Learning
 
 ### Collaboration
-This project includes **collaborative machine learning model development** for predicting poaching risk. The ML pipeline leverages:
-
-- **Input Data**: Combined tabular features + satellite imagery patches
-- **Model Types**: Explored ensemble methods, tree-based models, and neural networks
-- **Approach**: Multimodal learning combining:
-  - Tabular feature processing
-  - Convolutional neural networks for image classification
-  - Ensemble predictions
-
-### Next Steps
-- ⏳ Hyperparameter tuning and cross-validation
-- ⏳ Model evaluation (accuracy, precision, recall, F1-score)
-- ⏳ Feature importance analysis
-- ⏳ Deployment and inference pipeline
+This project includes **collaborative machine learning model development** for predicting poaching risk.
 
 ---
 
@@ -150,7 +137,6 @@ This project includes **collaborative machine learning model development** for p
 | **Satellite Data** | Google Earth Engine, Sentinel-2 |
 | **Data Processing** | Pandas, NumPy, OpenCV |
 | **Visualization** | Matplotlib, Tableau |
-| **Machine Learning** | Scikit-learn, Pandas |
 | **Programming** | Python 3.9+ |
 | **Version Control** | Git, GitHub |
 
@@ -178,7 +164,7 @@ kruger-poaching-risk-analysis/
 
 ---
 
-## 🚀 Project Status & Next Steps
+## 🚀 Project Status
 
 ✅ **Completed**:
 - Grid creation and spatial segmentation
@@ -187,16 +173,7 @@ kruger-poaching-risk-analysis/
 - Risk scoring model development
 - Dataset preparation (tabular + imagery)
 - Tableau dashboard design
-
-⏳ **In Progress**:
 - Collaborative ML model development
-
-⏳ **Future**:
-- Model evaluation and validation
-- Deployment and real-time risk assessment
-- Integration with conservation management systems
-- Temporal analysis (seasonal risk patterns)
-
 ---
 
 ## 📋 Dataset Documentation
