@@ -108,7 +108,11 @@ Interactive dashboard visualizing:
 - 🎯 Key performance indicators and metrics
 - 📍  Risk count and grid-level segmentation
 
-**Location**: `dashboard/` folder (to be added)
+📷 Preview:  
+![Dashboard Preview](dashboard/images/poaching_dashboard_f.PNG)
+
+The Tableau packaged workbook is available in the `dashboard/` folder.
+
 
 ---
 
