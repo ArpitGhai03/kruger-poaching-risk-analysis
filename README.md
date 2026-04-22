@@ -102,12 +102,11 @@ Risk Score = (1 - NDVI) + Water% + dist_to_water/5000 + burned_area + (500 - ele
 ## 📊 Tableau Dashboard
 
 Interactive dashboard visualizing:
-- 🗺️ Spatial risk distribution across Kruger
-- 📉 Risk category proportions
-- 🌊 Water proximity hotspots
-- 🌿 Vegetation density patterns
-- 🔥 Fire scar and burned area correlations
-- 📍 Grid-level risk predictions
+🗺️ Spatial risk distribution across Kruger park
+📊 Risk category proportions (Low/Medium/High)
+📈 NDVI and elevation patterns by risk category
+🎯 Key performance indicators and metrics
+📍 Risk count and grid-level segmentation
 
 **Location**: `dashboard/` folder (to be added)
 
