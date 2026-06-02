@@ -11,11 +11,15 @@ A comprehensive two-phase project combining geospatial data generation with deep
 This unified repository integrates both **data pipeline** and **ML modeling**:
 
 ### Phase 1: Data Generation (Geospatial Processing)
-- Grid-based spatial segmentation of Kruger Park (1000+ cells at 2km × 2km)
-- Satellite imagery extraction from Google Earth Engine (Sentinel-2)
-- Feature engineering: NDVI, water proximity, elevation, burned areas
-- Risk scoring using environmental indicators
-- Dataset: 5,095 grid cells with satellite patches & risk labels
+- **Boundary Data**: WDPA (World Database Protected Areas) Shapefile for Kruger boundary
+- **Grid Creation**: Regular 0.018° × 0.018° (≈2km × 2km) grid clipped to park boundary = ~5,095 cells
+- **Feature Extraction via GEE**: 
+  - Sentinel-2 2024 data (median composite, <20% cloud cover)
+  - 6 environmental features: NDVI, Water %, dist_to_water, burned_area, elevation, landcover
+  - Batch downloads + merged into unified dataset
+- **Risk Scoring**: Composite algorithm combining 6 features with weighted rules (see Feature Engineering)
+- **Image Processing**: Sentinel-2 GeoTIFFs clipped per grid → resized to 128×128 pixels → PNG format
+- **Dataset**: 5,095 grid cells with normalized features, risk labels, and satellite image patches
 
 ### Phase 2: ML & Prediction (Local - This Repo)
 - Load and explore geospatial dataset
@@ -51,19 +55,30 @@ kruger-poaching-risk-analysis/
 
 ---
 
-## 🛰️ Dataset
+## 🛰️ Dataset Details
+
+### Data Generation Pipeline
+1. **Boundary**: WDPA Shapefile → Kruger Park polygon (WGS84)
+2. **Grid**: Regular grid overlay clipped to boundary → 5,095 cells
+3. **GEE Processing**: Sentinel-2 2024 imagery → extract 6 features per grid → batch downloads
+4. **Image Extraction**: GeoTIFFs masked per grid cell → clipped patches
+5. **Standardization**: Resized to 128×128 pixels, converted TIF→PNG
+6. **Feature Scaling**: StandardScaler normalization for ML models
+7. **Labeling**: Composite risk scoring algorithm → 3 categories
 
 ### Files
-- **data.csv**: Main dataset (5,095 grid cells)
-  - Grid location (lat/lon)
-  - Environmental features: NDVI, water %, elevation, burned area
-  - Risk labels: categorical (Low/Medium/High)
-  - Image paths pointing to satellite patches
+- **data.csv**: Main dataset (5,095 rows × 15 columns)
+  - Grid identifiers: id, Grid_ID, Lat, Lon, centroid_x, centroid_y
+  - Geometry: WKT polygon for each grid cell
+  - Environmental features (normalized): NDVI, Water, dist_to_water, burned_area, elevation, landcover
+  - Target: poaching_risk (Low/Medium/High)
+  - Image reference: image_path (relative path to PNG patch)
 
 ### Satellite Images
-- **grid_patches_final_png/**: 128×128 pixel patches from Sentinel-2
-- Organized by grid ID (grid_0.png, grid_1.png, ... grid_5592.png)
-- RGB composite from Sentinel-2 bands
+- **grid_patches_final_png/**: 128×128 pixel RGB patches from Sentinel-2 (bands 4,3,2)
+- Derived from GeoTIFFs clipped per grid cell and standardized to fixed size
+- Organized by grid ID (grid_0.png, grid_1.png, ... grid_5337.png)
+- ~5,600 valid image patches corresponding to grid cells with complete data
 
 ### Class Distribution
 - **Medium Risk**: ~45% (majority)
@@ -119,15 +134,39 @@ Tests all trained models on random samples from the dataset.
 
 ---
 
-## 🔍 Feature Engineering
+## 🔍 Feature Engineering & Risk Scoring
 
-| Feature | Interpretation |
-|---------|-----------------|
-| **NDVI** | Vegetation density (lower = easier access) |
-| **Water %** | Wildlife concentration zones |
-| **Distance to Water** | Poacher accessibility patterns |
-| **Elevation** | Terrain difficulty & accessibility |
-| **Burned Area** | Recent disturbance & access corridors |
+### Environmental Features (normalized via StandardScaler)
+| Feature | Source | Interpretation |
+|---------|--------|------------------|
+| **NDVI** | Sentinel-2 B8/B4 | Vegetation density (lower = easier access) |
+| **Water %** | JRC Water dataset | Water body coverage (higher = wildlife concentration) |
+| **Distance to Water** | GEE calculation | Proximity to water sources (closer = easier poaching) |
+| **Elevation** | SRTM DEM | Terrain height (lower = easier access) |
+| **Burned Area** | MODIS/Sentinel-2 | Recent fire damage % (higher = reduced barriers) |
+| **Landcover** | GEE classification | Terrain type (grassland/trees/etc.) |
+
+### Risk Scoring Methodology
+Composite algorithm combining features with weighted rules:
+```
+Score = 0
+if NDVI < 0.3: Score += 2 (very low vegetation)
+if NDVI < 0.4: Score += 1 (low vegetation)
+if Water > 50%: Score += 2 (high water presence)
+if Water > 20%: Score += 1 (moderate water)
+if dist_to_water < 500m: Score += 2 (very close to water)
+if dist_to_water < 1500m: Score += 1 (close to water)
+if burned_area > 50%: Score += 2 (heavily burned)
+if burned_area > 20%: Score += 1 (partially burned)
+if elevation < 500m: Score += 1 (lowland)
+
+Risk Category:
+if Score >= 6: "High" risk
+if Score >= 3: "Medium" risk
+else: "Low" risk
+```
+
+Resulting class distribution: Medium ~45%, Low ~27%, High ~28%
 
 ---
 
